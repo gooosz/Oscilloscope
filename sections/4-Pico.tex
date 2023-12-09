@@ -1,0 +1,30 @@
+\section{Raspberry Pi Pico}
+
+%% Describes Pico, GPIO, registers, etc.
+%% also some internal processing values
+%% e.g. Taktrate am GPIO,
+%%      Genauigkeit beim messen am GPIO
+Pico
+
+\subsection{GPIO}
+
+
+\subsection{Registers}
+
+
+\subsection{ADC}
+
+ADC
+
+\subsubsection{Linear Map}
+The ADC defines a linear map 
+$$f: [0,3.3] \rightarrow [\texttt{0x0}, \texttt{0xFFF}]$$ \newline
+\texttt{0xFFF} because 12 bit register. \newline
+TODO: Prove that this is a function... \newline
+This function takes an analog input (voltage at GPIO) and writes the corresponding value into the GPIO register. \newline
+This \texttt{Hex} value is not the value of the actual voltage, only a mapping, though.
+TODO: Prove that an inverse exists... \newline
+To calculate the measured voltage we define an inverse
+$$
+	f^{-1}: [\texttt{0x0}, \texttt{0xFFF}] \rightarrow [0, 3.3]
+$$
