@@ -1,8 +1,11 @@
 *.aux
 *.pdf
+*.djvu
 *.out
 *.fls
 *.log
 *.toc
 *.gz
 *.fdb_latexmk
+*.bbl
+*.blg
