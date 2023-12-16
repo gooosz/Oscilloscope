@@ -1,10 +1,12 @@
-\section{Raspberry Pi Pico}
+\section{Mikrocontroller}
 
-%% Describes Pico, GPIO, registers, etc.
+%% Describes STM32F769I-DISCO, GPIO, registers, etc.
 %% also some internal processing values
 %% e.g. Taktrate am GPIO,
 %%      Genauigkeit beim messen am GPIO
-Pico
+Für die Messung und Darstellung der Messwerte wird als Mikrocontroller der STM32F769I-DISCO verwendet. \newline
+Dieser besitzt ein integriertes 4 Zoll LCD Display \cite{MikroControllerDatasheet}.
+Durch die library BREUER LIBRARY ZITIEREN, wird die Benutzung des Displays erleichtert.
 
 \subsection{GPIO}
 
@@ -17,8 +19,10 @@ Pico
 ADC
 
 \subsubsection{Lineare Funktion}
-The ADC defines a linear map 
-$$f: [0,3.3] \rightarrow [\texttt{0x0}, \texttt{0xFFF}]$$ \newline
+The ADC defines a linear map
+\begin{center}
+	$f: [0,3.3] \rightarrow [\texttt{0x0}, \texttt{0xFFF}]$
+\end{center}
 \texttt{0xFFF} because 12 bit register. \newline
 TODO: Prove that this is a function... \newline
 This function takes an analog input (voltage at GPIO) and writes the corresponding value into the GPIO register. \newline

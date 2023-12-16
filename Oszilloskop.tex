@@ -3,9 +3,13 @@
 \usepackage[ngerman]{babel}
 \usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage{url}
+\usepackage[numbers]{natbib}
+\usepackage{graphicx}
+\usepackage[nottoc]{tocbibind} % for adding Bibliography to table of contents
 
 %opening
-\title{Building an oscilloscope using RP Pico to measure an LC-Circuit}
+\title{Oszilloskop mittels Mikrocontroller}
 \author{Len-Marvin Adler, Deniz}
 
 \begin{document}
@@ -26,7 +30,7 @@
 \include{sections/3-InputBereinigen.tex}
 
 %% 4.
-\include{sections/4-Pico.tex}
+\include{sections/4-Mikrocontroller.tex}
 
 %% 5.
 \include{sections/5-BeispielNutzung.tex}
@@ -42,7 +46,7 @@
 
 
 %% Bibliography
-\bibliographystyle{plain}
+\bibliographystyle{plainnat}
 \bibliography{bib/bibliography.bib}
 
 \end{document}
