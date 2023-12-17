@@ -4,19 +4,45 @@
 %% also some internal processing values
 %% e.g. Taktrate am GPIO,
 %%      Genauigkeit beim messen am GPIO
-Für die Messung und Darstellung der Messwerte wird als Mikrocontroller der STM32F769I-DISCO verwendet. \newline
-Dieser besitzt ein integriertes 4 Zoll LCD Display \cite{MikroControllerDatasheet}.
-Durch die library BREUER LIBRARY ZITIEREN, wird die Benutzung des Displays erleichtert.
+Für die Messung und Darstellung der Messwerte wird als Mikrocontroller der STM32F769I-DISCO verwendet,
+weil dieser ein integriertes 4 Zoll LCD Display besitzt\cite{MikroControllerDatasheet_1}.
+Durch die library BREUER LIBRARY ZITIEREN UND LICENSE FRAGEN, wird die Benutzung des Displays erleichtert.
+Im Folgenden werden die verwendeten Komponenten des Mikrocontrollers erläutert.
 
 \subsection{GPIO}
-
-
-\subsection{Register}
-
+Der STM32F769I-DISCO besitzt vier 32-Bit Konfigurationsregister, zwei 32-Bit Datenregister und ein 32-Bit Set-/Reset-Register.
+Diese werden gebraucht um Daten zu lesen und zu senden.
+Im Gegensatz zu USB, UART oder ähnlichen Pins am Mikrocontroller, ist bei GPIO kein
+Übertragungsprotokoll festgelegt QUELLE EINFÜGEN. \newline
+Dadurch lassen sich neue Semantiken der Übertragung definieren. \newline
+Das Oszilloskop ist ein Messgerät, daher wird nur die Input Funktionalität des GPIO benötigt.
+Um die analogen Spannungen messen und ausgeben zu können, müssen sie als digitaler Wert
+im Mikrocontroller vorliegen. \newline Diese Funktion übernimmt der ADC \cite{MikroControllerDatasheet_1}.
+Deshalb muss unser Messeingang an einem GPIO Pin mit ADC Anschluss liegen, der \textit{ADC1} an GPIO Pin
+\textit{PA4} eignet sich hierfür \cite{STM32F769_PinLayout, MikroControllerDatasheet_Pins}.
 
 \subsection{ADC}
 
-ADC
+Der Analog-Digital-Converter (ADC) ist ein Bauteil welches analoge Signale in digitale übersetzt. \newline
+Die digitalen Werte werden dann in ein 12-Bit Register (ADC-REGISTER) geschrieben QUELLE EINFÜGEN.
+Deshalb kann der ADC zwischen $2^{12} = 4096$ verschiedene Spannungswerte im erlaubten Spannungsbereich, $0V$ bis $3.3V$, am Pin messen.
+Das Oszilloskop verwendet am Pin allerdings nur bis $3V$, um ihn nicht an seine Grenzen zu bringen. \newline
+Hierbei sei gesagt, dass die Werte im ADC-Register nicht direkt mit den gemessenen Spannungen korrellieren,
+da der ADC einen Hex Wert zuweist, der im Bereich $0$ bis $4095$ liegt, dieser aber vom Wert her nichts mit
+dem Spannungswert zu tun hat. \newline
+Ferner lässt sich die Grenze der Genauigkeit am ADC ausrechnen, also welche Spannungsbereich denselben
+Wert im ADC-REGISTER zugewiesen bekommt.
+Sei $U$ die Spannung und $Hex_{max} = 4096$ der maximale Wert im ADC-Register,
+dann
+$$U = \frac{3.3V}{Hex_{max}} = 0.8mV$$
+Das bedeutet, alle $0.8mV$ am Pin, verändert sich der ADC-Register Wert. \newline
+Folglich kann das Oszilloskop nicht genauer als auf $0.8mV$ messen. \newpage \noindent
+Die gemessene Spannung lässt sich dann wie folgt ausrechnen: \newline
+Sei $U$ die gemessene Spannung an \textit{PA4}, $Hex \in [0, 4095]$ der zugewiesene Wert im ADC-Register
+und $3V$ die maximale Spannung, die das Spannungsnetzwerk aus \ref{Vorraussetzungen} an den \textit{PA4} gibt,
+dann gilt
+$$U = \frac{Hex \cdot 3V}{4095}$$
+ist die Spannung an \textit{PA4} in Volt.
 
 \subsubsection{Lineare Funktion}
 The ADC defines a linear map
@@ -32,3 +58,7 @@ To calculate the measured voltage we define an inverse
 $$
 	f^{-1}: [\texttt{0x0}, \texttt{0xFFF}] \rightarrow [0, 3.3]
 $$
+
+\subsection{Display}
+
+Wieviel Hz das Display hat, also wieviel Anzeige ist
