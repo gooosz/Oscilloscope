@@ -15,11 +15,16 @@
 \begin{document}
 
 \maketitle
+\thispagestyle{empty}
 \clearpage
 \tableofcontents
+\thispagestyle{empty}
 \clearpage
 
+\pagenumbering{roman}
+\setcounter{page}{3}
 \section*{Abkürzungen}
+\addcontentsline{toc}{section}{\protect\numberline{}Abkürzungen}
 % Abkürzungen
 \begin{description}
 	\item[ADC]
@@ -33,6 +38,8 @@
 \end{description}
 \clearpage
 
+\pagenumbering{arabic}
+\setcounter{page}{1}
 %% content of sections is written in the included files
 %% 1.
 \include{sections/1-Einleitung.tex}

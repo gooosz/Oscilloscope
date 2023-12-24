@@ -4,51 +4,80 @@
 %% also some internal processing values
 %% e.g. Taktrate am GPIO,
 %%      Genauigkeit beim messen am GPIO
-Für die Messung und Darstellung der Messwerte wird als Mikrocontroller der STM32F769I-DISCO verwendet,
-weil dieser ein integriertes 4 Zoll LCD Display besitzt\cite{MikroControllerDatasheet_1}.
-Durch die library BREUER LIBRARY ZITIEREN UND LICENSE FRAGEN, wird die Benutzung des Displays erleichtert.
+Die Spannungswerte lassen sich allerdings noch nicht messen oder darstellen.
+Daher wird ein Bauteil benötigt, das die Spannungswerte digital darstellen kann.
+Hierfür wird ein Mikrocontroller verwendet, der durch seine GPIO Pins und eingebauten ADC die Werte digital speichern kann.
+Der STM32F769I-DISCO eignet sich, weil dieser ein integriertes 4 Zoll LCD Display besitzt\cite{MikroControllerDatasheet_1}.
+Durch die Bibliothek \textit{EmbSysLib}, wird die Software Implementierung des Displays zusätzlich
+erleichtert\cite{EmbSysLib}.
 Im Folgenden werden die verwendeten Komponenten des Mikrocontrollers erläutert.
 
 \subsection{GPIO}
 Der STM32F769I-DISCO besitzt vier 32-Bit Konfigurationsregister, zwei 32-Bit Datenregister und ein 32-Bit Set-/Reset-Register.
 Diese werden gebraucht um Daten zu lesen und zu senden.
-Im Gegensatz zu USB, UART oder ähnlichen Pins am Mikrocontroller, ist bei GPIO kein
-Übertragungsprotokoll festgelegt QUELLE EINFÜGEN. \newline
-Dadurch lassen sich neue Semantiken der Übertragung definieren. \newline
+\textit{General Purpose} bedeutet, dass die Pins für unterschiedlichste Zwecke programmiert werden können \cite{RPI-GPIO}. \newline
+%Dadurch lassen sich neue Semantiken der Übertragung definieren. \newline
 Das Oszilloskop ist ein Messgerät, daher wird nur die Input Funktionalität des GPIO benötigt.
 Um die analogen Spannungen messen und ausgeben zu können, müssen sie als digitaler Wert
-im Mikrocontroller vorliegen. \newline Diese Funktion übernimmt der ADC \cite{MikroControllerDatasheet_1}.
+im Mikrocontroller vorliegen. \newline Diese Funktion übernimmt der ADC\cite{MikroControllerDatasheet_1}.
 Deshalb muss unser Messeingang an einem GPIO Pin mit ADC Anschluss liegen, der \textit{ADC1} an GPIO Pin
-\textit{PA4} eignet sich hierfür \cite{STM32F769_PinLayout, MikroControllerDatasheet_Pins}.
+\textit{PA4} eignet sich hierfür\cite{STM32F769_PinLayout, MikroControllerDatasheet_Pins}.
 
 \subsection{ADC}
 
 Der Analog-Digital-Converter (ADC) ist ein Bauteil welches analoge Signale in digitale übersetzt. \newline
 Die digitalen Werte werden dann in ein 12-Bit Register (ADC-REGISTER) geschrieben QUELLE EINFÜGEN.
 Deshalb kann der ADC zwischen $2^{12} = 4096$ verschiedene Spannungswerte im erlaubten Spannungsbereich, $0V$ bis $3.3V$, am Pin messen.
-Das Oszilloskop verwendet am Pin allerdings nur bis $3V$, um ihn nicht an seine Grenzen zu bringen. \newline
+Das Oszilloskop verwendet am Pin allerdings nur bis $3V$, dadurch ist das Teilungsverhältnis des Spannungsteilers aus \ref{Vorraussetzungen} einfacher zu berechnen. \newline
 Hierbei sei gesagt, dass die Werte im ADC-Register nicht direkt mit den gemessenen Spannungen korrellieren,
-da der ADC einen Hex Wert zuweist, der im Bereich $0$ bis $4095$ liegt, dieser aber vom Wert her nichts mit
+da der ADC einen Hex Wert zuweist, der im Bereich $0$ bis $4095$ liegt, dieser Wert aber nichts mit
 dem Spannungswert zu tun hat. \newline
-Ferner lässt sich die Grenze der Genauigkeit am ADC ausrechnen, also welche Spannungsbereich denselben
+Ferner lässt sich die Grenze der Genauigkeit am ADC ausrechnen, also welcher Spannungsbereich denselben
 Wert im ADC-REGISTER zugewiesen bekommt.
-Sei $U$ die Spannung und $Hex_{max} = 4096$ der maximale Wert im ADC-Register,
+Sei $\Delta U$ die Differenz zwischen zwei Spannungen, deren Hex-Werte im ADC-Register sich um $1$ unterscheiden und $Hex_{max} = 4095$ der maximale Wert im ADC-Register,
 dann
-$$U = \frac{3.3V}{Hex_{max}} = 0.8mV$$
+$$\Delta U = \frac{3.3V}{Hex_{max}} = 0.8mV$$
 Das bedeutet, alle $0.8mV$ am Pin, verändert sich der ADC-Register Wert. \newline
-Folglich kann das Oszilloskop nicht genauer als auf $0.8mV$ messen. \newpage \noindent
-Die gemessene Spannung lässt sich dann wie folgt ausrechnen: \newline
-Sei $U$ die gemessene Spannung an \textit{PA4}, $Hex \in [0, 4095]$ der zugewiesene Wert im ADC-Register
+Folglich kann das Oszilloskop nicht genauer als auf $0.8mV$ messen. \newline
+Die gemessene Spannung lässt sich wie folgt ausrechnen: \newline
+Sei $U_{GPIO}$ die gemessene Spannung an \textit{PA4}, $Hex \in [0, 4095]$ der zugewiesene Wert im ADC-Register
 und $3V$ die maximale Spannung, die das Spannungsnetzwerk aus \ref{Vorraussetzungen} an den \textit{PA4} gibt,
 dann gilt
-$$U = \frac{Hex \cdot 3V}{4095}$$
+$$
+	U_{GPIO} = \frac{Hex \cdot 3V}{4095}
+$$
 ist die Spannung an \textit{PA4} in Volt.
+
+\subsection{Eingangsspannung berechnen}
+Die Spannung am GPIO Pin \text{PA4} wird im Folgenden $U_{GPIO}$ genannt. \newline
+Die Eingangsspannung wird als $U_{in}$ bezeichnet und
+um nachzuvollziehen, welcher Schritt aus \ref{Vorraussetzungen} in einer Rechnung behandelt wird, wird die Spannung zwischen Opamp$_2$ und Spannungsteiler $(R_5, R_6)$ als $U_{vorST}$ angegeben. \newline
+Die Spannung $U_{GPIO}$ ist allerdings nicht die Eingangsspanung am Oszilloskop, die tatsächlich gemessen werden soll, da
+das Opamp-Netzwerk aus \ref{Vorraussetzungen} diese, für den GPIO Pin, bereinigt.
+Es gilt nun, diese Bereinigung Schritt für Schritt wieder zurückzurechnen, um die Eingangsspannung zu erhalten. \newline
+Der Spannungsteiler aus WO SPANNUNGSTEILER GERECHNET WIRD REFERREN teilt $U_{vorST}$
+zu $U_{GPIO}$, also laut Spannungsteilerregel
+$$
+	U_{GPIO} = \frac{U_{vorST} \cdot 100 \Omega}{333 \Omega + 100 \Omega}
+$$
+Daraus folgt
+$$
+	U_{vorST} = \frac{U_{GPIO} \cdot (333 \Omega + 100 \Omega)}{100 \Omega}
+$$
+\newline
+Um die Spannung vor den Opamps zu erhalten, muss man lediglich die Offset Spannung $U_{offset}$
+von $U_{vorST}$ subtrahieren, es folgt
+$$
+	U_{in} = U_{vorST} - U_{offset}
+$$
+wobei $U_{in}$ die Eingangsspannung, die gemessen werden soll, darstellt.
 
 \subsubsection{Lineare Funktion}
 The ADC defines a linear map
-\begin{center}
-	$f: [0,3.3] \rightarrow [\texttt{0x0}, \texttt{0xFFF}]$
-\end{center}
+$$
+	f: [0,3.3] \rightarrow [\texttt{0x0}, \texttt{0xFFF}]
+$$
+
 \texttt{0xFFF} because 12 bit register. \newline
 TODO: Prove that this is a function... \newline
 This function takes an analog input (voltage at GPIO) and writes the corresponding value into the GPIO register. \newline
