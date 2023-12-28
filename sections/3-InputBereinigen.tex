@@ -1,13 +1,18 @@
-\section{Inputspannung bereinigen}
+\section{Eingangsspannung bereinigen}
+\label{Eingangsspannung bereinigen}
 
 %% Describes our Opamps and Voltage divider
 %% also reasoning for choosing those specific
 %% values of resistor, power supply, etc.
-Test \newline
-Oszilloskop soll Stromkreis, der gemessen wird, nicht belasten, daher Opamps.
+Der GPIO Pin aus \ref{Mikrocontroller}, an dem die Spannung mithilfe eines Mikrocontrollers gemessen wird,
+kann nur Spannung im Bereich $[0, 3.6]V$ messen.
+Das Oszilloskop soll allerdings einen größeren Spannungsbereich $[-15, 15]V$ messen können.
+Folglich muss man diese Eingangsspannung für den GPIO Pin bereinigen.
 
 \subsection{Unbelastete Eingangsspannung}
 \label{Unbelastete Eingangsspannung}
+Damit der Stromkreis, der gemessen wird, nicht belastet wird, wird ein Opamp mit hoher Eingangsimpedanz und
+mit Verstärkungsfaktor $1$ benutzt.
 
 \subsection{Addition einer Offset-Spannung}
 \label{Addition einer Offset-Spannung}

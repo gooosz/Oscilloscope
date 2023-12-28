@@ -7,6 +7,8 @@
 \usepackage[numbers]{natbib}
 \usepackage{graphicx}
 \usepackage[nottoc]{tocbibind} % for adding Bibliography to table of contents
+\usepackage{nameref}
+\usepackage{siunitx}
 
 %opening
 \title{Oszilloskop mittels Mikrocontroller}
@@ -32,9 +34,18 @@
 	
 	\item[GPIO]
 	General Purpose Input Output
+
+	\item[IDR]
+	Input Data Register
 	
 	\item[Opamp]
 	Operational Amplifier - Operationsverstärker
+
+	\item[LCD]
+	Liquid Crystal Display
+
+	\item[TFT]
+	Thin Film Transistor
 \end{description}
 \clearpage
 
@@ -65,9 +76,13 @@
 %% 8.
 \include{sections/8-Schluss.tex}
 
+% Anhang, alles was zu groß ist kommt hier rein
+\include{sections/9-Anhang.tex}
+
 
 %% Bibliography
 \bibliographystyle{plainnat}
 \bibliography{bib/bibliography.bib}
+
 
 \end{document}

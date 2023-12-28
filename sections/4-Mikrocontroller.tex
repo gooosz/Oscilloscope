@@ -1,4 +1,5 @@
 \section{Mikrocontroller}
+\label{Mikrocontroller}
 
 %% Describes STM32F769I-DISCO, GPIO, registers, etc.
 %% also some internal processing values
@@ -7,56 +8,86 @@
 Die Spannungswerte lassen sich allerdings noch nicht messen oder darstellen.
 Daher wird ein Bauteil benötigt, das die Spannungswerte digital darstellen kann.
 Hierfür wird ein Mikrocontroller verwendet, der durch seine GPIO Pins und eingebauten ADC die Werte digital speichern kann.
-Der STM32F769I-DISCO eignet sich, weil dieser ein integriertes 4 Zoll LCD Display besitzt\cite{MikroControllerDatasheet_1}.
-Durch die Bibliothek \textit{EmbSysLib}, wird die Software Implementierung des Displays zusätzlich
-erleichtert\cite{EmbSysLib}.
+Der STM32F769I-DISCO eignet sich, weil dieser zusätzlich ein integriertes 4 Zoll LCD Display
+besitzt\cite{MikroControllerDatasheet_1}.
+Durch die Bibliothek \textit{EmbSysLib} \cite{EmbSysLib}, wird die Software Implementierung des Displays zusätzlich
+erleichtert. Zusätzlich wird das STM32F769-Disco Extension Board verwendet, um mehr
+Anschlussmöglichkeiten am Mikrocontroller zu haben \cite{MikrocontrollerExtension}.
 Im Folgenden werden die verwendeten Komponenten des Mikrocontrollers erläutert.
 
 \subsection{GPIO}
-Der STM32F769I-DISCO besitzt vier 32-Bit Konfigurationsregister, zwei 32-Bit Datenregister und ein 32-Bit Set-/Reset-Register.
+Der STM32F769I-DISCO besitzt pro GPIO Pin vier 32-Bit Konfigurationsregister, zwei 32-Bit Datenregister
+und ein 32-Bit Set-/Reset-Register \cite{MikroControllerDatasheet_1}.
 Diese werden gebraucht um Daten zu lesen und zu senden.
-\textit{General Purpose} bedeutet, dass die Pins für unterschiedlichste Zwecke programmiert werden können \cite{RPI-GPIO}. \newline
-%Dadurch lassen sich neue Semantiken der Übertragung definieren. \newline
+\textit{General Purpose} bedeutet, dass die Pins für unterschiedlichste Zwecke für
+Input/Output programmiert werden können \cite{RPI-GPIO}. \newline
 Das Oszilloskop ist ein Messgerät, daher wird nur die Input Funktionalität des GPIO benötigt.
 Um die analogen Spannungen messen und ausgeben zu können, müssen sie als digitaler Wert
-im Mikrocontroller vorliegen. \newline Diese Funktion übernimmt der ADC\cite{MikroControllerDatasheet_1}.
+im Mikrocontroller vorliegen. \newline
+Die Umwandlung von analogem zu digitalem Wert übernimmt der ADC\cite{MikroControllerDatasheet_1}.
 Deshalb muss unser Messeingang an einem GPIO Pin mit ADC Anschluss liegen, der \textit{ADC1} an GPIO Pin
 \textit{PA4} eignet sich hierfür\cite{STM32F769_PinLayout, MikroControllerDatasheet_Pins}.
+Am Extension Board liegt dieser Pin an Sensor Port \textit{S2-2} \cite{MikrocontrollerExtension}.
+
 
 \subsection{ADC}
 
-Der Analog-Digital-Converter (ADC) ist ein Bauteil welches analoge Signale in digitale übersetzt. \newline
-Die digitalen Werte werden dann in ein 12-Bit Register (ADC-REGISTER) geschrieben QUELLE EINFÜGEN.
-Deshalb kann der ADC zwischen $2^{12} = 4096$ verschiedene Spannungswerte im erlaubten Spannungsbereich, $0V$ bis $3.3V$, am Pin messen.
-Das Oszilloskop verwendet am Pin allerdings nur bis $3V$, dadurch ist das Teilungsverhältnis des Spannungsteilers aus \ref{Vorraussetzungen} einfacher zu berechnen. \newline
-Hierbei sei gesagt, dass die Werte im ADC-Register nicht direkt mit den gemessenen Spannungen korrellieren,
+Der Mikrocontroller verwendet einen 12-Bit Analog-Digital-Converter (ADC).
+Die analogen Werte werden also mit einer Auflösung von 12-Bit am \textit{PA4} gelesen und dann
+in das 16-Bit Input-Data-Register (IDR) des Pins als digitaler Wert
+geschrieben\cite{MikroControllerDatasheet_1}.
+Deshalb kann der ADC zwischen $2^{12} = 4096$ verschiedene Spannungswerte im erlaubten Spannungsbereich,
+$0V$ bis $3.3V$, am Pin messen\cite{MikroControllerDatasheet_1}.
+Das Oszilloskop verwendet am Pin allerdings nur bis $3V$, dadurch ist das Teilungsverhältnis des Spannungsteilers
+aus \ref{Spannungsteiler} einfacher zu berechnen. \newline
+Hierbei sei gesagt, dass die Werte im IDR nicht direkt mit den gemessenen Spannungen korrellieren,
 da der ADC einen Hex Wert zuweist, der im Bereich $0$ bis $4095$ liegt, dieser Wert aber nichts mit
 dem Spannungswert zu tun hat. \newline
 Ferner lässt sich die Grenze der Genauigkeit am ADC ausrechnen, also welcher Spannungsbereich denselben
-Wert im ADC-REGISTER zugewiesen bekommt.
-Sei $\Delta U$ die Differenz zwischen zwei Spannungen, deren Hex-Werte im ADC-Register sich um $1$ unterscheiden und $Hex_{max} = 4095$ der maximale Wert im ADC-Register,
+Wert im IDR zugewiesen bekommt. \newline
+Sei $\Delta U$ die Differenz zwischen zwei Spannungen, deren Hex-Werte im IDR sich um $1$
+unterscheiden und $Hex = 4096$ die Anzahl der verschiedenen Werte im IDR,
 dann
-$$\Delta U = \frac{3.3V}{Hex_{max}} = 0.8mV$$
-Das bedeutet, alle $0.8mV$ am Pin, verändert sich der ADC-Register Wert. \newline
-Folglich kann das Oszilloskop nicht genauer als auf $0.8mV$ messen. \newline
+$$\Delta U = \frac{3.3V}{Hex} = 0.8mV$$
+Das bedeutet, alle $0.8mV$ am Pin, verändert sich der IDR Wert. \newline
+Folglich kann das Oszilloskop nicht genauer als auf $0.8mV$ messen.
+\newline \newline
+In \textit{EmbSysLib/Example/Src/Board/STM32F769-Discovery/config.h} wird nun ein
+\texttt{Timer\_Mcu timer(Timer\_Mcu::TIM\_11, 100L)} Objekt erstellt\cite{EmbSysLib}. \newline
+\texttt{100L} gibt an, dass alle $100\mu s$ ein Timer Interrupt ausgeführt werden soll.
+Ein Timer Interrupt ruft dann die \texttt{virtual void TaskManager::Task::update()} Methode auf,
+welche in einer abgeleiteten Klasse \texttt{MyTimer} überschrieben wurde EIGENEN CODE ZITIEREN.
+Diese Methode liest einen Wert aus IDR und schreibt diesen in ein Array
+für die spätere Darstellung. \newline
+Ein Wert wird alle $100\mu s$ gemessen, also
+$$
+\frac{1 \text{Wert}}{100 \mu s} \iff 10\frac{\text{Werte}}{ms}
+\iff 10000 \frac{\text{Werte}}{s}
+$$
+Daraus folgt für die Frequenz $f$ der Messung
+$$
+f = 10000 \frac{1}{s} = 10 \si{\kilo\hertz}
+$$
+
+\subsection{Eingangsspannung berechnen}
+Die Spannung am GPIO Pin \text{PA4} wird im Folgenden $U_{GPIO}$ genannt. \newline
+Die Eingangsspannung wird als $U_{in}$ bezeichnet und die Spannung zwischen Opamp$_2$
+und Spannungsteiler $(R_5, R_6)$ als $U_{vorST}$ angegeben.
+\newline \newline
 Die gemessene Spannung lässt sich wie folgt ausrechnen: \newline
-Sei $U_{GPIO}$ die gemessene Spannung an \textit{PA4}, $Hex \in [0, 4095]$ der zugewiesene Wert im ADC-Register
-und $3V$ die maximale Spannung, die das Spannungsnetzwerk aus \ref{Vorraussetzungen} an den \textit{PA4} gibt,
+Sei $U_{GPIO}$ die gemessene Spannung an \textit{PA4}, $Hex \in [0, 4095]$ der zugewiesene Wert im IDR
+und $3V$ die maximale Spannung, die das Netzwerk aus \nameref{Schematic_all} an den \textit{PA4} gibt,
 dann gilt
 $$
 	U_{GPIO} = \frac{Hex \cdot 3V}{4095}
 $$
 ist die Spannung an \textit{PA4} in Volt.
-
-\subsection{Eingangsspannung berechnen}
-Die Spannung am GPIO Pin \text{PA4} wird im Folgenden $U_{GPIO}$ genannt. \newline
-Die Eingangsspannung wird als $U_{in}$ bezeichnet und
-um nachzuvollziehen, welcher Schritt aus \ref{Vorraussetzungen} in einer Rechnung behandelt wird, wird die Spannung zwischen Opamp$_2$ und Spannungsteiler $(R_5, R_6)$ als $U_{vorST}$ angegeben. \newline
-Die Spannung $U_{GPIO}$ ist allerdings nicht die Eingangsspanung am Oszilloskop, die tatsächlich gemessen werden soll, da
-das Opamp-Netzwerk aus \ref{Vorraussetzungen} diese, für den GPIO Pin, bereinigt.
-Es gilt nun, diese Bereinigung Schritt für Schritt wieder zurückzurechnen, um die Eingangsspannung zu erhalten. \newline
-Der Spannungsteiler aus WO SPANNUNGSTEILER GERECHNET WIRD REFERREN teilt $U_{vorST}$
-zu $U_{GPIO}$, also laut Spannungsteilerregel
+\newline \newline
+Die Spannung $U_{GPIO}$ ist allerdings nicht die Eingangsspannung am Oszilloskop, die tatsächlich gemessen werden soll, da
+das Opamp-Netzwerk aus \ref{Eingangsspannung bereinigen} diese, für den GPIO Pin, bereinigt.
+Es gilt nun, diese Bereinigung Schritt für Schritt in der Software wieder zurückzurechnen, um die Eingangsspannung zu erhalten. \newline
+Der Spannungsteiler aus \ref{Spannungsteiler} teilt $U_{vorST}$
+zu $U_{GPIO}$, also gilt laut Spannungsteilerregel
 $$
 	U_{GPIO} = \frac{U_{vorST} \cdot 100 \Omega}{333 \Omega + 100 \Omega}
 $$
@@ -64,30 +95,26 @@ Daraus folgt
 $$
 	U_{vorST} = \frac{U_{GPIO} \cdot (333 \Omega + 100 \Omega)}{100 \Omega}
 $$
-\newline
-Um die Spannung vor den Opamps zu erhalten, muss man lediglich die Offset Spannung $U_{offset}$
+\newline\newline
+Um dann die Eingangsspannung zu erhalten, muss man lediglich die Offset Spannung $U_{offset}$
 von $U_{vorST}$ subtrahieren, es folgt
 $$
 	U_{in} = U_{vorST} - U_{offset}
 $$
 wobei $U_{in}$ die Eingangsspannung, die gemessen werden soll, darstellt.
 
-\subsubsection{Lineare Funktion}
-The ADC defines a linear map
-$$
-	f: [0,3.3] \rightarrow [\texttt{0x0}, \texttt{0xFFF}]
-$$
-
-\texttt{0xFFF} because 12 bit register. \newline
-TODO: Prove that this is a function... \newline
-This function takes an analog input (voltage at GPIO) and writes the corresponding value into the GPIO register. \newline
-This \texttt{Hex} value is not the value of the actual voltage, only a mapping, though.
-TODO: Prove that an inverse exists... \newline
-To calculate the measured voltage we define an inverse
-$$
-	f^{-1}: [\texttt{0x0}, \texttt{0xFFF}] \rightarrow [0, 3.3]
-$$
 
 \subsection{Display}
 
-Wieviel Hz das Display hat, also wieviel Anzeige ist
+Das Display ist ein $4$-Zoll LCD-TFT-Display mit einer Auflösung von \newline $800 \times 472 \si{px}$
+und einer Bildwiederholrate von 30\si{\hertz} \cite{MikroControllerDatasheet_1}.
+Da für die Frequenz der Messung $10 \si{\kilo\hertz} > 30 \si{\hertz}$ gilt,
+misst der Mikrocontroller deutlich schneller, als er die Messwerte darstellen könnte.
+Die gemessenen Werte müssen dementsprechend zumindest temporär, bis zur Darstellung auf dem Display,
+in einer Datenstruktur, z.B. einem Array, zwischengespeichert werden SIEHE EIGENEN CODE EINFÜGEN MIT FLAGS.
+Sobald das Array gefüllt wurde, wird es ausgegeben. In der Zeit vom gefüllten Array bis zur
+vollständigen Ausgabe ZEIT MESSEN UND HIERREIN SCHREIBEN wird das Array weder geleert noch überschrieben,
+da sonst die alten Daten, die eventuell noch nicht ausgegeben wurden, verloren gehen.
+Daher wird beim Oszilloskop der Fokus auf korrekt gemessene, aufeinanderfolgende Werte in einer
+Stichprobe anstatt auf eine kontinuierliche Messung gelegt.
+
