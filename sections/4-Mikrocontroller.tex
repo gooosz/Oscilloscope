@@ -12,8 +12,9 @@ Der STM32F769I-DISCO eignet sich, weil dieser zusätzlich ein integriertes 4 Zol
 besitzt\cite{MikroControllerDatasheet_1}.
 Durch die Bibliothek \textit{EmbSysLib} \cite{EmbSysLib}, wird die Software Implementierung des Displays zusätzlich
 erleichtert. Zusätzlich wird das STM32F769-Disco Extension Board verwendet, um mehr
-Anschlussmöglichkeiten am Mikrocontroller zu haben \cite{MikrocontrollerExtension}.
-Im Folgenden werden die verwendeten Komponenten des Mikrocontrollers erläutert.
+Anschluss-möglichkeiten am Mikrocontroller zu haben \cite{MikrocontrollerExtension}.
+Im Folgenden werden die verwendeten Komponenten des Mikrocontrollers und wie die Messung und
+Darstellung der Spannungswerte funktioniert, erläutert.
 
 \subsection{GPIO}
 Der STM32F769I-DISCO besitzt pro GPIO Pin vier 32-Bit Konfigurationsregister, zwei 32-Bit Datenregister
@@ -56,9 +57,11 @@ In \textit{EmbSysLib/Example/Src/Board/STM32F769-Discovery/config.h} wird nun ei
 \texttt{Timer\_Mcu timer(Timer\_Mcu::TIM\_11, 100L)} Objekt erstellt\cite{EmbSysLib}. \newline
 \texttt{100L} gibt an, dass alle $100\mu s$ ein Timer Interrupt ausgeführt werden soll.
 Ein Timer Interrupt ruft dann die \texttt{virtual void TaskManager::Task::update()} Methode auf,
-welche in einer abgeleiteten Klasse \texttt{MyTimer} überschrieben wurde EIGENEN CODE ZITIEREN.
-Diese Methode liest einen Wert aus IDR und schreibt diesen in ein Array
-für die spätere Darstellung. \newline
+welche in einer abgeleiteten Klasse \texttt{MyTimer} überschrieben wurde,
+der Code für das Oszilloskop ist nachzulesen in \cite{Oscilloscope_Code}.
+Diese Methode liest einen Wert aus IDR, mittels der Methode \texttt{adc.get(adc\_A1)} des
+globalen Objekts \texttt{adc} der Klasse \texttt{EmbSysLib::Hw::Adc\_Mcu},
+und schreibt diesen in ein Array für die spätere Darstellung. \newline
 Ein Wert wird alle $100\mu s$ gemessen, also
 $$
 \frac{1 \text{Wert}}{100 \mu s} \iff 10\frac{\text{Werte}}{ms}
@@ -111,10 +114,49 @@ und einer Bildwiederholrate von 30\si{\hertz} \cite{MikroControllerDatasheet_1}.
 Da für die Frequenz der Messung $10 \si{\kilo\hertz} > 30 \si{\hertz}$ gilt,
 misst der Mikrocontroller deutlich schneller, als er die Messwerte darstellen könnte.
 Die gemessenen Werte müssen dementsprechend zumindest temporär, bis zur Darstellung auf dem Display,
-in einer Datenstruktur, z.B. einem Array, zwischengespeichert werden SIEHE EIGENEN CODE EINFÜGEN MIT FLAGS.
-Sobald das Array gefüllt wurde, wird es ausgegeben. In der Zeit vom gefüllten Array bis zur
+in einer Datenstruktur, z.B. einem Array, zwischengespeichert werden, siehe \cite{Oscilloscope_Code}.
+Sobald das Array gefüllt wurde, wird es ausgegeben.
+Auf dem gesamten Display werden also ca. 800 gemessene Werte, ein Wert pro Pixel auf der Zeitachse,
+dargestellt. \newline
+In der Zeit vom gefüllten Array bis zur
 vollständigen Ausgabe ZEIT MESSEN UND HIERREIN SCHREIBEN wird das Array weder geleert noch überschrieben,
 da sonst die alten Daten, die eventuell noch nicht ausgegeben wurden, verloren gehen.
 Daher wird beim Oszilloskop der Fokus auf korrekt gemessene, aufeinanderfolgende Werte in einer
 Stichprobe anstatt auf eine kontinuierliche Messung gelegt.
-
+\newline \newline
+Für die Darstellung wird ein Koordinatensystem mit zwei Achsen, Zeit- und Spannungsachse,
+auf dem Display aufgemalt.
+Die Spannungsachse zeigt die Werte $-15V$ bis $+15V$, in $1V$ Schritten.
+Die Zeitachse zeigt die Zeiten von $0s$ bis $0.1s$, in Schritten von $0.01s$.
+Die jeweiligen Werte müssen nun einem x- und y-Wert auf dem Display zugeordnet werden,
+um dort einen Pixel zu malen. Dieser Pixel soll den gemessenen Wert darstellen. \newline
+Hierfür werden zwei Konstanten für die Skalierung auf den Achsen definiert,
+\texttt{pixelPerVolt} und \texttt{pixelPerSecond}.
+Diese werden benötigt um den jeweiligen Spannungs- und Zeitwert, z.B eine Spannung im Bereich
+$[1,2]V$ auch auf dem Display zwischen den Pixeln für $1V$ und $2V$ anzuzeigen.
+Die Konstante \texttt{pixelPerVolt} gibt an, wieviele Pixel in einem $1V$ Intervall auf der
+y-Achse auf dem Display liegen.
+Die andere Konstante \texttt{pixelPerSecond} gibt an, wieviele Pixel in einem $0.01s$ Intervall
+auf der x-Achse liegen. \newline
+Mit diesen beiden Konstanten und den gemessenen Werten, lassen sich die Koordinaten des zu setzenden
+Pixels errechnen, durch
+$$
+\texttt{y}(\texttt{volt}) = \begin{cases}
+	\texttt{ymax}/2 - \texttt{volt} * \texttt{pixelPerVolt} & \texttt{volt} \ge 0 \\
+	\texttt{ymax}/2 + \texttt{volt} * \texttt{pixelPerVolt} & \text{sonst} \\
+\end{cases}
+$$
+Die positiven Spannungswerte befinden sich in der oberen Hälfte des Displays, also $\le \texttt{ymax}/2$,
+die negativen Werte liegen in der unteren Hälfte. \newline
+Die Zeitwerte werden einfach von der ersten x-Koordinate, also $0s$ startend, pro Spannungswert inkrementiert.
+Da es genau soviele gemessenen Werte wie Pixel zwischen der ersten x-Koordinate bei $0s$
+und der letzten bei $0.1s$ gibt, und konstant gemessen wird, ist die Zeiteinteilung trivial. \newline
+Eine einfache Messung sieht so aus:
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.125]{images/messung3.3V.jpg}
+	\caption{Messung von konstanten $3.3V$ durch das Oszilloskop}
+\end{figure}
+\newline
+Wenn eine Messung vollständig dargestellt wurde, kann durch betätigen von \textit{Btn3},
+auf dem Extension Board, eine neue Messung gestartet werden.

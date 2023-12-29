@@ -19,6 +19,11 @@ Für die Messung, muss das Oszilloskop zur gemessenen Spannung parallel geschalt
 damit die Spannung am Oszilloskop die gleiche ist, wie die am gemessenen Stromkreis.
 
 \subsubsection{Idee}
+Das Oszilloskop besteht im groben aus zwei Bereichen.
+Zum einen wird die Eingangsspannung bereinigt, erläutert in \ref{Eingangsspannung bereinigen},
+damit sie dem Spannungsbereich am GPIO Pin genügt.
+Zum anderen übernimmt ein Mikrocontroller, in \ref{Mikrocontroller} beschrieben,
+die tatsächliche Messung und Darstellung der Spannungswerte. \newline
 Die Eingangsspannung $U_{in}$ liegt im Intervall $[-15, 15] V$,
 der GPIO Pin des Mikrocontrollers erlaubt allerdings nur $[0, 3.6] V$. \newline
 Folglich muss die Eingangsspannung dahingehend bereinigt werden.

@@ -11,8 +11,15 @@ Folglich muss man diese Eingangsspannung für den GPIO Pin bereinigen.
 
 \subsection{Unbelastete Eingangsspannung}
 \label{Unbelastete Eingangsspannung}
-Damit der Stromkreis, der gemessen wird, nicht belastet wird, wird ein Opamp mit hoher Eingangsimpedanz und
-mit Verstärkungsfaktor $1$ benutzt.
+Damit der Stromkreis, der gemessen wird, nicht belastet wird, wird ein Opamp mit hoher Eingangsimpedanz
+und mit Verstärkungsfaktor $1$ benutzt.
+Der Schaltplan sieht folgendermaßen aus:
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{images/unbelastet2\_opamp1.png}
+	\caption{Schaltplan um den Eingangsstrom nicht zu belasten}
+\end{figure}
+
 
 \subsection{Addition einer Offset-Spannung}
 \label{Addition einer Offset-Spannung}
