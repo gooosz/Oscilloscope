@@ -5,18 +5,18 @@
 %% also reasoning for choosing those specific
 %% values of resistor, power supply, etc.
 Der GPIO Pin aus \ref{Mikrocontroller}, an dem die Spannung mithilfe eines Mikrocontrollers gemessen wird,
-kann nur Spannung im Bereich $[0, 3.6]V$ messen.
-Das Oszilloskop soll allerdings einen größeren Spannungsbereich $[-15, 15]V$ messen können.
-Folglich muss man diese Eingangsspannung für den GPIO Pin bereinigen.
+kann nur Spannung im Bereich $[0, 3.3]V$ messen.
+Das Oszilloskop soll allerdings einen größeren Spannungsbereich $[-5, 5]V$ messen können.
+Daher wird nun diese Eingangsspannung für den GPIO Pin bereinigt.
 
 \subsection{Unbelastete Eingangsspannung}
 \label{Unbelastete Eingangsspannung}
-Damit der Stromkreis, der gemessen wird, nicht belastet wird, wird ein Opamp mit hoher Eingangsimpedanz
-und mit Verstärkungsfaktor $1$ benutzt.
-Der Schaltplan sieht folgendermaßen aus:
+Der Stromkreis, der gemessen wird, soll nicht belastet werden, daher wird ein Opamp mit
+hoher Eingangsimpedanz und einem Verstärkungsfaktor von $1$ benutzt.
+Dies wird durch eine Rückkopplung des Ausgangs an den invertierten Eingang des Opamps erreicht
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=\textwidth]{images/unbelastet2\_opamp1.png}
+	\includegraphics[width=0.5\textwidth]{images/unbelastet2\_opamp1.png}
 	\caption{Schaltplan um den Eingangsstrom nicht zu belasten}
 \end{figure}
 
@@ -24,5 +24,48 @@ Der Schaltplan sieht folgendermaßen aus:
 \subsection{Addition einer Offset-Spannung}
 \label{Addition einer Offset-Spannung}
 
+Nun gilt es den Spannungsbereich von $[-5, 5]V$ auf $[0, 10]V$ zu legen, um die negative Spannung
+"`zu eliminieren"'. Dazu wird eine Offset-Spannung $U_{offset}$, die aus einer $3.7V$ Batterie stammt
+und mithilfe des Stepup Converter auf $5V$ gebracht wird, dazu addiert.
+Dies geschieht mit einem Nicht-invertierten Summierverstärkers, also ein Opamp der extern mit
+Spannungsteilern beschalten ist. 
+Der Opamp funktioniert, solange die Ausgangsspannung innerhalb des Bereichs der Versorgungsspannung,
+also $[-5, 10]V$, liegt. Für die maximale Eingangsspannung gilt $\max(U_{in}) + U_{offset} = 5V + 5V = 10V$
+und für die minimale gilt $\min(U_{in}) + U_{offset} = -5V + 5V = 0V$, der Opamp funktioniert also für
+die definierte Eingangs- und Offsetspannung.
+\newline
+Der Spannungsteiler $(R_1, R_2)$ teilt die Spannungen $U_{in}$ und $U_{offset}$ zu einer
+Spannung $U_{R_1, R_2} = \frac{U_{in} + U_{offset}}{2}$, welche in den Nicht-invertierten Eingang
+von \textit{Opamp2} kommt. \newline
+Es gilt, laut \cite{Opamp_adder}, für die Ausgangsspannung $U_3$ des Opamps:
+\begin{align*}
+U_3 &= (U_{in} \cdot \frac{R_2}{R_1 + R_2} + U_{offset} \cdot \frac{R_1}{R_1 + R_2}) \cdot(1 + \frac{R_4}{R_3}) \\
+	&= (U_{in} \cdot \frac{1}{2} + U_{offset} \cdot \frac{1}{2}) \cdot 2 \\
+	&= U_{in} + U_{offset}
+\end{align*}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/schematic\_adder.png}
+	\caption{Addition von Eingangsspannung $U_{in}$ und Offsetspannung $U_{offset}$}
+\end{figure}
+
 \subsection{Spannungsteiler}
 \label{Spannungsteiler}
+
+Zuletzt wird die Spannung $U_3$, welche aus \textit{Opamp2} gegeben wird, geteilt, sodass
+sie im Bereich $[0, 3.3]V$ für den GPIO Pin liegt.
+Der Spannungsteiler $(R_5, R_6)$ teilt dabei $U_3$ zu
+$U_{GPIO} = \frac{U_3 \cdot R_6}{R_5 + R_6} = U_3 \cdot \frac{100 \Omega}{330 \Omega}$. \newline
+Dadurch ergibt sich ein Spannungsbereich für $U_{GPIO}$ von
+$[0, 10 \cdot \frac{100}{330}]V = [0, 3.3]V$.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/schematic_spannungsteiler.png}
+	\caption{Spannungsteiler zu $U_{GPIO}$}
+\end{figure}
+\newline
+Die bereinigte Spannung $U_{GPIO}$ wird nun an den GPIO Pin des Mikrocontrollers angeschlossen.
+
+
+

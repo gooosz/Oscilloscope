@@ -79,7 +79,7 @@ und Spannungsteiler $(R_5, R_6)$ als $U_{vorST}$ angegeben.
 \newline \newline
 Die gemessene Spannung lässt sich wie folgt ausrechnen: \newline
 Sei $U_{GPIO}$ die gemessene Spannung an \textit{PA4}, $Hex \in [0, 4095]$ der zugewiesene Wert im IDR
-und $3V$ die maximale Spannung, die das Netzwerk aus \nameref{Schematic_all} an den \textit{PA4} gibt,
+und $3V$ die maximale Spannung, die das Netzwerk aus \ref{Gesamte_Schematic} an den \textit{PA4} gibt,
 dann gilt
 $$
 	U_{GPIO} = \frac{Hex \cdot 3V}{4095}
@@ -92,11 +92,11 @@ Es gilt nun, diese Bereinigung Schritt für Schritt in der Software wieder zurü
 Der Spannungsteiler aus \ref{Spannungsteiler} teilt $U_{vorST}$
 zu $U_{GPIO}$, also gilt laut Spannungsteilerregel
 $$
-	U_{GPIO} = \frac{U_{vorST} \cdot 100 \Omega}{333 \Omega + 100 \Omega}
+	U_{GPIO} = \frac{U_{vorST} \cdot 100 \Omega}{330 \Omega + 100 \Omega}
 $$
 Daraus folgt
 $$
-	U_{vorST} = \frac{U_{GPIO} \cdot (333 \Omega + 100 \Omega)}{100 \Omega}
+	U_{vorST} = \frac{U_{GPIO} \cdot (330 \Omega + 100 \Omega)}{100 \Omega}
 $$
 \newline\newline
 Um dann die Eingangsspannung zu erhalten, muss man lediglich die Offset Spannung $U_{offset}$
@@ -115,8 +115,8 @@ Da für die Frequenz der Messung $10 \si{\kilo\hertz} > 30 \si{\hertz}$ gilt,
 misst der Mikrocontroller deutlich schneller, als er die Messwerte darstellen könnte.
 Die gemessenen Werte müssen dementsprechend zumindest temporär, bis zur Darstellung auf dem Display,
 in einer Datenstruktur, z.B. einem Array, zwischengespeichert werden, siehe \cite{Oscilloscope_Code}.
-Sobald das Array gefüllt wurde, wird es ausgegeben.
-Auf dem gesamten Display werden also ca. 800 gemessene Werte, ein Wert pro Pixel auf der Zeitachse,
+Sobald das Array gefüllt wurde, wird es ausgegeben. \newline
+Auf dem gesamten Display werden 800 gemessene Werte, also ein Wert pro Pixel auf der Zeitachse,
 dargestellt. \newline
 In der Zeit vom gefüllten Array bis zur
 vollständigen Ausgabe ZEIT MESSEN UND HIERREIN SCHREIBEN wird das Array weder geleert noch überschrieben,
