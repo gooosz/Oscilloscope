@@ -1,5 +1,4 @@
 \documentclass[a4paper,11pt,titlepage]{article}
-%\documentclass[a4paper,11pt,smallheadings,headsepline,titlepage,liststotoc,idxtotoc,bibtotoc,bibliography=totocnumbered]{scrartcl}
 \usepackage[ngerman]{babel}
 \usepackage{hyperref}
 \usepackage{amsmath}
@@ -9,7 +8,12 @@
 \usepackage[nottoc]{tocbibind} % for adding Bibliography to table of contents
 \usepackage{nameref}
 \usepackage{siunitx}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{adjustbox}
 
+% Seitenränder
+\usepackage[paper=a4paper,left=30mm,right=30mm,top=25mm,bottom=20mm]{geometry}
 \usepackage[explicit]{titlesec}
 %\usepackage[explicit]{titlesec}
 % Raised Rule Command:
@@ -17,8 +21,12 @@
 % Arg 2 - Thickness of the rule
 \newcommand{\raisedrulefill}[2][0ex]{\leaders\hbox{\rule[#1]{1pt}{#2}}\hfill}
 % hline next to section title
-\titleformat{\section}{\Large\bfseries}{\thesection }{0em}
-{\hspace{0.5em}#1\,\raisedrulefill[0.4ex]{2pt}}
+\titleformat{\section}{\Large\bfseries\sffamily}{\thesection}{0.5em}
+{#1\,\raisedrulefill[0.4ex]{2pt}}
+% subsection change font and make bold
+\titleformat{\subsection}{\large\bfseries\sffamily}{\thesubsection}{0.5em}{#1}
+% subsubsection change font and make bold
+\titleformat{\subsubsection}{\bfseries\sffamily}{\thesubsubsection}{0.5em}{#1}
 
 %opening
 %\title{Oszilloskop mittels Mikrocontroller}
@@ -29,45 +37,6 @@
 
 \include{sections/0-Titelseite.tex}
 
-% title page
-%\begin{titlepage}
-%	\begin{center}
-%    \vspace*{1cm}
-%
-%	% description
-%	\Large
-%    Seminararbeit im Bachelor-Studiengang \\
-%	Informatik
-%	\vspace{1cm}
-%
-%
-%	% title
-%	\huge
-%    \textbf{Oszilloskop mittels Mikrocontroller}
-%
-%    %\vspace{0.5cm}
-%    %Thesis Subtitle
-%
-%    \vspace{2.5cm}
-%
-%	%author
-%	\LARGE
-%   \textbf{Len-Marvin Adler, Deniz}
-%
-%    \vfill
-%
-%    %\includegraphics[width=0.4\textwidth]{university}
-%
-%	Betreuer: Prof. Dr. Thomas Breuer \\
-%	Eingereicht am: \today
-%
-%   \end{center}
-%\end{titlepage}
-
-
-%\maketitle
-%\thispagestyle{empty}
-%\clearpage
 \tableofcontents
 \thispagestyle{empty}
 \clearpage
@@ -115,12 +84,6 @@
 
 %% 5.
 \include{sections/5-BeispielNutzung.tex}
-
-%% 6.
-\include{sections/6-Benchmarking.tex}
-
-%% 7.
-\include{sections/7-Diskussion.tex}
 
 %% 8.
 \include{sections/8-Schluss.tex}

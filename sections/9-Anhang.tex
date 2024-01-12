@@ -3,12 +3,17 @@
 \label{Anhang}
 
 % list of all attachments
-\begin{enumerate}
+\begin{enumerate}[label=\textbf{A.\arabic*}]
 	\item
-	\label{Schematic_all}
-		\begin{figure}[h!]
+		\label{Gesamte_Schematic}
+		\begin{minipage}[]{\linewidth}
 			\centering
-			\includegraphics[width=\textwidth, scale=0.1]{images/schematic_opamps3.png}
-			\caption{Schematischer Aufbau des Oszilloskops}
-		\end{figure}
+			\includegraphics[width=\textwidth, scale=0.1]{images/schematic\_oszilloskop\_horizontal.png}
+			\captionof{figure}{Schematischer Aufbau des Oszilloskops}
+		\end{minipage}
+
+	\item
+		\label{Display_Code}
+		Code für die Verwendung des Mikrocontrollers \newline
+		\url{https://github.com/gooosz/Oscilloscope_Display.git}
 \end{enumerate}

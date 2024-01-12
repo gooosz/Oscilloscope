@@ -1,49 +1,60 @@
-\section{Vorraussetzungen}
-\label{Vorraussetzungen}
+\section{Grundlegendes}
+\label{Grundlegendes}
 
 %% What you need for building our oscilloscope
 %% also reasoning for the devices
+\subsection{Anforderungen}
+\label{Anforderungen}
+Es werden erst einmal einige Anforderungen an das Oszilloskop gestellt. \newline
+Das Oszilloskop soll Spannungen im Bereich $[-5, 5]V$ messen können.
+Diese Spannung soll Gleichspannung sein und mit $10\si{\kilo\hertz}$ gemessen werden. \newline
+Die gemessenen Werte sollen anschließend auf einem Display ausgegeben werden.
+Der zeitliche Darstellungsbereich soll hierbei $0.08s$ betragen und die Spannung
+zwischen $-5V$ und $+5V$ darstellen.
 
-\subsection{Geräte}
 
 
-
-
-\subsection{Zusammenspiel}
-
-Alle Geräte zusammen als Schaltplan ist in \nameref{Schematic_all} im Anhang zu finden.
-
-
-Oszilloskop Eingang ist $U_{in}$ und der Ground $0$. \newline
-Für die Messung, muss das Oszilloskop zur gemessenen Spannung parallel geschalten werden,
-damit die Spannung am Oszilloskop die gleiche ist, wie die am gemessenen Stromkreis.
-
-\subsubsection{Idee}
+\subsection{Konzept}
 Das Oszilloskop besteht im groben aus zwei Bereichen.
-Zum einen wird die Eingangsspannung bereinigt, erläutert in \ref{Eingangsspannung bereinigen},
-damit sie dem Spannungsbereich am GPIO Pin genügt.
-Zum anderen übernimmt ein Mikrocontroller, in \ref{Mikrocontroller} beschrieben,
-die tatsächliche Messung und Darstellung der Spannungswerte. \newline
-Die Eingangsspannung $U_{in}$ liegt im Intervall $[-15, 15] V$,
-der GPIO Pin des Mikrocontrollers erlaubt allerdings nur $[0, 3.6] V$. \newline
-Folglich muss die Eingangsspannung dahingehend bereinigt werden.
+Zum einen übernimmt ein Mikrocontroller, in \ref{Mikrocontroller} beschrieben,
+die tatsächliche Messung und Darstellung der Spannungswerte.
+Die Eingangsspannung $U_{in}$ liegt im Intervall $[-5, 5] V$,
+der General Purpose Input Output (GPIO) Pin des Mikrocontrollers erlaubt allerdings nur $[0, 3.3] V$.
+Der andere Teil des Oszilloskops muss also die Eingangsspannung dahingehend bereinigen.
 \newline \newline
-Hierfür bringen wir die Eingangsspannung erstmal in den positiven Bereich, indem wir
-eine Offset Spannung $U_{offset} = 15V$, mithilfe eines Nicht-invertierten Summierverstärkers,
-erläutert in \ref{Addition einer Offset-Spannung}, dazu addieren. \newline
-Der Spannungsbereich ändert sich dadurch zu $[0, 30] V$.
+Hierfür wird zur Eingangsspannung eine Offsetspannung $U_{offset} = 5V$,
+mithilfe eines Nichtinvertierenden Summierverstärkers,
+erläutert in \ref{Addition einer Offset-Spannung}, addiert. \newline
+Der Spannungsbereich ändert sich dadurch zu $[0, 10] V$.
 Dieser muss nun lediglich, mithilfe eines Spannungsteilers, siehe \ref{Spannungsteiler},
-zu $[0, 3.6] V$ aufgeteilt werden.
-Damit der gemessene Stromkreis durch das Oszilloskop nicht belastet wird,
+zu $[0, 3.3] V$ aufgeteilt werden.
+Damit der gemessene Stromkreis durch das Oszilloskop nicht belastet und verändert wird,
 muss noch ein Bauteil mit einer hohen Eingangsimpedanz, erläutert in \ref{Unbelastete Eingangsspannung},
 vor das ganze Netzwerk geschalten werden.
+Damit das Oszilloskop aber die tatsächliche Eingangsspannung, und nicht die bereinigte, darstellt,
+wird die Bereinigung über die Software zurückgerechnet.
+
+
+\subsection{Komponenten}
+
+Das Herzstück des Oszilloskops bildet ein Mikrocontroller, dieser ist in \ref{Mikrocontroller} näher
+erläutert. Damit das Oszilloskop aber einen etwas größeren Spannungsbereich messen kann, werden außerdem
+zwei dual-supply, rail-to-rail Opamps mit einem Eingangsspannungsbereich von $\pm18V$,
+beispielsweise der \textit{TS912IN}, benötigt und vor den Mikrocontroller geschalten
+\cite{Opamp_Datasheet}.
+Ferner werden einige Widerstände benötigt, die als Spannungsteiler fungieren.
+Der gesamte Schaltplan ist unter \ref{Gesamte_Schematic} im Anhang zu finden.
+Der Oszilloskop Messeingang wird $U_{in}$ und der Ground $0$ genannt.
 
 
 \subsubsection{Stromversorgung}
-Der Mikrocontroller wird über Micro-USB mit $5V$ versorgt.
-Die beiden Opamps werden durch eine Batterie mithilfe von Stepup Convertern versorgt.
+Der Mikrocontroller wird über Micro-USB mit $5V$ versorgt. \newline
+Die beiden Operationsverstärker (Opamps) bekommen durch den $V_{CC} \approx 5V$ Output
+des Mikrocontrollers und
+mithilfe von den Stepup Spannungswandlern \textit{MT3608} eine Versorgungsspannung
+von $V^{+}_{CC} = 15V$ und $V^{-}_{CC} = -15V$.
+Ein weiterer \textit{MT3608} wandelt $V_{CC} \approx 5V$ zur Offsetspannung $U_{offset} = 5V$ um.
 
-Später werden die einzelnen Schritte ausführlicher erläutert und begründet.
 
 
 
