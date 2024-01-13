@@ -27,6 +27,10 @@
 \titleformat{\subsection}{\large\bfseries\sffamily}{\thesubsection}{0.5em}{#1}
 % subsubsection change font and make bold
 \titleformat{\subsubsection}{\bfseries\sffamily}{\thesubsubsection}{0.5em}{#1}
+% autoref zu Abschnitt anstatt Unterabschnitt
+%\renewcommand{\sectionautorefname}{Abschnitt}
+%\renewcommand{\subsectionautorefname}{Abschnitt}
+%\renewcommand{\subsubsectionautorefname}{Abschnitt}
 
 %opening
 %\title{Oszilloskop mittels Mikrocontroller}
@@ -56,7 +60,7 @@
 	\item[IDR]
 	Input Data Register
 	
-	\item[Opamp]
+	\item[OpAmp]
 	Operational Amplifier - Operationsverstärker
 
 	\item[LCD]
@@ -71,22 +75,22 @@
 \setcounter{page}{1}
 %% content of sections is written in the included files
 %% 1.
-\include{sections/1-Einleitung.tex}
+\input{sections/1-Einleitung.tex}
 
 %% 2.
-\include{sections/2-Vorraussetzungen.tex}
+\input{sections/2-Vorraussetzungen.tex}
 
 %% 3.
-\include{sections/3-InputBereinigen.tex}
+\input{sections/3-InputBereinigen.tex}
 
 %% 4.
-\include{sections/4-Mikrocontroller.tex}
+\input{sections/4-Mikrocontroller.tex}
 
 %% 5.
-\include{sections/5-BeispielNutzung.tex}
+\input{sections/5-BeispielNutzung.tex}
 
 %% 8.
-\include{sections/8-Schluss.tex}
+\input{sections/8-Schluss.tex}
 
 % Anhang, alles was zu groß ist kommt hier rein
 \include{sections/9-Anhang.tex}

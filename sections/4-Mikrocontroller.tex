@@ -6,7 +6,7 @@
 %% e.g. Taktrate am GPIO,
 %%      Genauigkeit beim messen am GPIO
 Die Spannungswerte lassen sich allerdings noch nicht messen oder darstellen.
-Daher wird ein Mikrocontroller verwendet, der durch seine GPIO Pins und eingebauten
+Daher wird ein Mikrocontroller verwendet, der durch seine GPIO Pins und einen eingebauten
 Analog-Digital-Converter (ADC) die Werte digital speichern kann.
 Der STM32F769I-DISCO eignet sich, weil dieser zudem ein integriertes 4 Zoll LCD Display
 besitzt\cite{MikroControllerDatasheet_1}.
@@ -22,12 +22,12 @@ Im Folgenden werden die verwendeten Komponenten des Mikrocontrollers, die Messun
 Darstellung der Spannungswerte erläutert.
 
 \subsection{GPIO}
-\textit{General Purpose} bedeutet, dass die Pins für unterschiedlichste Zwecke für
-Input/Output programmiert werden können \cite{RPI-GPIO}. \newline
+\textit{General Purpose Input Output} bedeutet, dass die Pins für unterschiedlichste Zwecke für
+programmiert werden können \cite{RPI-GPIO}. \newline
 Das Oszilloskop ist ein Messgerät, daher wird nur die Input Funktionalität des GPIO Pins benötigt.
 Um die analogen Spannungen messen und ausgeben zu können, müssen sie als digitaler Wert
 im Mikrocontroller vorliegen. \newline
-Die Umwandlung von analogem zu digitalem Wert übernimmt der ADC\cite{MikroControllerDatasheet_1}.
+Die Umwandlung von analogen zu digitalen Werten übernimmt der ADC\cite{MikroControllerDatasheet_1}.
 Deshalb muss die bereinigte Eingangsspannung $U_{GPIO}$ an einem GPIO Pin mit ADC Anschluss liegen,
 der \textit{ADC1} an GPIO Pin \textit{PA4} eignet sich hierfür\cite{STM32F769_PinLayout, MikroControllerDatasheet_Pins}.
 Am Extension Board liegt dieser Pin an Sensor Port \textit{S2-1} \cite{MikrocontrollerExtension}.
@@ -76,7 +76,7 @@ $$
 $$
 die Spannung an \textit{PA4}.
 \newline \newline
-Die Spannung $U_{GPIO}$ ist allerdings nicht die Eingangsspannung am Oszilloskop, die tatsächlich gemessen werden soll, da die Opamps aus \ref{Eingangsspannung bereinigen} diese, für den GPIO Pin, bereinigt.
+Die Spannung $U_{GPIO}$ ist allerdings nicht die Eingangsspannung am Oszilloskop, die tatsächlich gemessen werden soll, da die OpAmps aus \ref{Eingangsspannung bereinigen} diese, für den GPIO Pin, bereinigt.
 Es gilt nun, diese Bereinigung Schritt für Schritt in der Software wieder zurückzurechnen, um $U_{in}$ zu erhalten. \newline
 Der Spannungsteiler aus \ref{Spannungsteiler} teilt $U_3$
 zu $U_{GPIO}$, also gilt laut Spannungsteilerregel
@@ -103,12 +103,12 @@ und einer Bildwiederholrate von 30\si{\hertz} \cite{MikroControllerDatasheet_1}.
 Da die Bildschirmausgabe der Werte länger dauert als die Messung, müssen gemessenen Werte
 zumindest temporär, bis zur Darstellung auf dem Display, in einer Datenstruktur,
 z.B. einem Array, gespeichert werden, siehe \texttt{src/main.cpp} in \ref{Display_Code}.
-Nachdem das Array gefüllt wurde, wird es ausgegeben und erstmal nicht weiter gemessen.
+Nachdem das Array gefüllt wurde, wird es ausgegeben und die Messung gestoppt.
 Auf dem gesamten Display werden 800 gemessene Werte, also ein Wert pro Pixel auf der Zeitachse,
 dargestellt.
 \newline \newline
 Für die Darstellung wird ein Koordinatensystem mit zwei Achsen, Zeit- und Spannungsachse,
-auf dem Display aufgemalt.
+auf dem Display gezeichnet.
 Die Spannungsachse zeigt die Werte $-5V$ bis $+5V$, in $1V$ Schritten.
 Die Zeitachse zeigt die Zeiten von $0s$ bis $0.08s$, in Schritten von $8\si{\milli s}$.
 Die jeweiligen Werte müssen nun einem x- und y-Wert auf dem Display zugeordnet werden,

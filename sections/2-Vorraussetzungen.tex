@@ -5,7 +5,7 @@
 %% also reasoning for the devices
 \subsection{Anforderungen}
 \label{Anforderungen}
-Es werden erst einmal einige Anforderungen an das Oszilloskop gestellt. \newline
+Zu Beginn werden klare Anforderungen an das Oszilloskop gestellt. \newline
 Das Oszilloskop soll Spannungen im Bereich $[-5, 5]V$ messen können.
 Diese Spannung soll Gleichspannung sein und mit $10\si{\kilo\hertz}$ gemessen werden. \newline
 Die gemessenen Werte sollen anschließend auf einem Display ausgegeben werden.
@@ -16,7 +16,7 @@ zwischen $-5V$ und $+5V$ darstellen.
 
 \subsection{Konzept}
 Das Oszilloskop besteht im groben aus zwei Bereichen.
-Zum einen übernimmt ein Mikrocontroller, in \ref{Mikrocontroller} beschrieben,
+Zum einen übernimmt ein Mikrocontroller, in \autoref{Mikrocontroller} beschrieben,
 die tatsächliche Messung und Darstellung der Spannungswerte.
 Die Eingangsspannung $U_{in}$ liegt im Intervall $[-5, 5] V$,
 der General Purpose Input Output (GPIO) Pin des Mikrocontrollers erlaubt allerdings nur $[0, 3.3] V$.
@@ -24,12 +24,12 @@ Der andere Teil des Oszilloskops muss also die Eingangsspannung dahingehend bere
 \newline \newline
 Hierfür wird zur Eingangsspannung eine Offsetspannung $U_{offset} = 5V$,
 mithilfe eines Nichtinvertierenden Summierverstärkers,
-erläutert in \ref{Addition einer Offset-Spannung}, addiert. \newline
-Der Spannungsbereich ändert sich dadurch zu $[0, 10] V$.
-Dieser muss nun lediglich, mithilfe eines Spannungsteilers, siehe \ref{Spannungsteiler},
+erläutert in Abschnitt \ref{Addition einer Offset-Spannung}, addiert. \newline
+Der Spannungsbereich verschiebt sich dadurch zu $[0, 10] V$.
+Dieser muss nun, mithilfe eines Spannungsteilers, siehe Abschnitt \ref{Spannungsteiler},
 zu $[0, 3.3] V$ aufgeteilt werden.
-Damit der gemessene Stromkreis durch das Oszilloskop nicht belastet und verändert wird,
-muss noch ein Bauteil mit einer hohen Eingangsimpedanz, erläutert in \ref{Unbelastete Eingangsspannung},
+Um den gemessenen Stromkreis durch das Oszilloskop nicht zu belasten oder zu verändern,
+muss noch ein Bauteil mit einer hohen Eingangsimpedanz, erläutert in Abschnitt \ref{Unbelastete Eingangsspannung},
 vor das ganze Netzwerk geschalten werden.
 Damit das Oszilloskop aber die tatsächliche Eingangsspannung, und nicht die bereinigte, darstellt,
 wird die Bereinigung über die Software zurückgerechnet.
@@ -37,9 +37,9 @@ wird die Bereinigung über die Software zurückgerechnet.
 
 \subsection{Komponenten}
 
-Das Herzstück des Oszilloskops bildet ein Mikrocontroller, dieser ist in \ref{Mikrocontroller} näher
-erläutert. Damit das Oszilloskop aber einen etwas größeren Spannungsbereich messen kann, werden außerdem
-zwei dual-supply, rail-to-rail Opamps mit einem Eingangsspannungsbereich von $\pm18V$,
+Das Herzstück des Oszilloskops bildet ein Mikrocontroller, dieser ist in \autoref{Mikrocontroller} näher
+erläutert. Damit das Oszilloskop aber einen etwas größeren Spannungsbereich messen kann, werden
+zwei dual-supply, rail-to-rail OpAmps mit einem Eingangsspannungsbereich von $\pm18V$,
 beispielsweise der \textit{TS912IN}, benötigt und vor den Mikrocontroller geschalten
 \cite{Opamp_Datasheet}.
 Ferner werden einige Widerstände benötigt, die als Spannungsteiler fungieren.
@@ -49,11 +49,10 @@ Der Oszilloskop Messeingang wird $U_{in}$ und der Ground $0$ genannt.
 
 \subsubsection{Stromversorgung}
 Der Mikrocontroller wird über Micro-USB mit $5V$ versorgt. \newline
-Die beiden Operationsverstärker (Opamps) bekommen durch den $V_{CC} \approx 5V$ Output
-des Mikrocontrollers und
-mithilfe von den Stepup Spannungswandlern \textit{MT3608} eine Versorgungsspannung
-von $V^{+}_{CC} = 15V$ und $V^{-}_{CC} = -15V$.
-Ein weiterer \textit{MT3608} wandelt $V_{CC} \approx 5V$ zur Offsetspannung $U_{offset} = 5V$ um.
+Der $V_{CC} \approx 5V$ Ausgang des Mikrocontrollers wird durch einen Stepup Spannungswandler,
+\textit{MT3608}, auf $V^{+}_{CC} = 15V$ und $V^{-}_{CC} = -15V$ erhöht und dient den beiden OpAmps als
+Versorgungsspannung.
+Ein weiterer \textit{MT3608} wandelt $V_{CC} \approx 5V$ zur stabilen Offsetspannung $U_{offset} = 5V$ um.
 
 
 
